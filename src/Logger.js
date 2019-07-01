@@ -1,11 +1,11 @@
-const fs = require('fs');
+const { mkdirSync, copyFileSync } = require('fs');
 const path = require('path');
 const { addColors, createLogger, format, transports } = require('winston');
 
 const logFileStamp = () => {
   var date = new Date;
   return date.getDate().toString()+"."+(date.getMonth() + 1).toString()+"."+date.getFullYear().toString();
-}
+};
 
 const loggingLevels = {
     levels: {
@@ -32,24 +32,35 @@ const loggingLevels = {
 
 
 const createDirectory = (dir) => {
-  console.log('Creating directory', dir);
+  console.log("Logger:","Creating directory", dir);
   let dirs = dir.split('/');
   let currentPath = '';
 
   for (let someDir of dirs) {
     try {
       currentPath = path.join(currentPath, someDir);
-      fs.mkdirSync(currentPath, 0777);
+      mkdirSync(currentPath, 0777);
     } catch (err) {
       if (err.code !== 'EEXIST') throw err
     }
 
   }
-  console.log('Finished creating directory');
-}
+  console.log("Logger:",'Finished creating directory');
+};
+
+const replaceOldFile = (filePath) => {
+  console.log("Logger:","Replace existing file.");
+  try {
+    copyFileSync(filePath, filePath + '.old');
+    console.log("Logger","Renamed old file to",filePath + '.old')
+  }
+  catch (err) {
+    console.log("Logger:","An error occured:",err.message);
+  }
+};
 
 const Logger = (filename, inputPath) => {
-  console.log("Instancing Logger");
+  console.log("Logger:","Instancing Logger");
 
   let loggingPath = inputPath || ( 'log' );
 
@@ -57,32 +68,43 @@ const Logger = (filename, inputPath) => {
 
   let name = path.join(loggingPath, filename);
 
+  replaceOldFile(name);
+
   let myTransports = [
-    new transports.File({ level: 'verbose', filename: name, json: false, timestamp: function() {return (new Date).toString('utf8')},
-    handleExceptions: true,
-    humanReadableUnhandledException: true})
+    new transports.File({
+      level: 'verbose',
+      filename: name,
+      format: format.combine(
+        format.timestamp(),
+        myFormat
+      ),
+      handleExceptions: true,
+      humanReadableUnhandledException: true
+    })
   ];
 
-  console.log('Add debug transport');
   //TODO: Add hanlding for different builds.
-  myTransports.push(new transports.Console({level: 'debug'}));
-  addColors(loggingLevels.colors);
-
-  console.log('Create logger');
-  var result = createLogger({
-    levels: loggingLevels.levels,
+  console.log("Logger:","Add debug transport");
+  myTransports.push(new transports.Console({
+    level: 'debug',
     format: format.combine(
       format.timestamp(),
       format.colorize(),
       myFormat
-    ),
+    )
+  }));
+  addColors(loggingLevels.colors);
+
+  console.log("Logger:","Create logger");
+  var result = createLogger({
+    levels: loggingLevels.levels,
     transports: myTransports,
     exitOnError: false
   });
 
-  console.log("Return logger");
-  
+  console.log("Logger:","Init logger");
+  result.serverInfo("Init");
   return result;
-}
+};
 
 module.exports = Logger;

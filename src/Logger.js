@@ -32,6 +32,7 @@ const loggingLevels = {
 
 
 const createDirectory = (dir) => {
+  console.log('Creating directory', dir);
   let dirs = dir.split('/');
   let currentPath = '';
 
@@ -44,9 +45,11 @@ const createDirectory = (dir) => {
     }
 
   }
+  console.log('Finished creating directory');
 }
 
 const Logger = (filename, inputPath) => {
+  console.log("Instancing Logger");
 
   let loggingPath = inputPath || ( 'log' );
 
@@ -60,10 +63,12 @@ const Logger = (filename, inputPath) => {
     humanReadableUnhandledException: true})
   ];
 
+  console.log('Add debug transport');
   //TODO: Add hanlding for different builds.
   myTransports.push(new transports.Console({level: 'debug'}));
   addColors(loggingLevels.colors);
 
+  console.log('Create logger');
   var result = createLogger({
     levels: loggingLevels.levels,
     format: format.combine(
@@ -75,6 +80,8 @@ const Logger = (filename, inputPath) => {
     exitOnError: false
   });
 
+  console.log("Return logger");
+  
   return result;
 }
 

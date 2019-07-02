@@ -1,4 +1,4 @@
-const { mkdirSync, copyFileSync } = require('fs');
+const { mkdirSync, copyFileSync, unlinkSync } = require('fs');
 const path = require('path');
 const { addColors, createLogger, format, transports } = require('winston');
 
@@ -54,6 +54,7 @@ const replaceOldFile = (filePath) => {
   console.log("Logger:","Replace existing file.");
   try {
     copyFileSync(filePath, filePath + '.old');
+    unlinkSync(filePath);
     console.log("Logger","Renamed old file to",filePath + '.old')
   }
   catch (err) {

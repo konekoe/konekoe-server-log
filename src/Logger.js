@@ -13,14 +13,16 @@ const loggingLevels = {
       daemonError: 1,
       serverInfo: 2,
       daemonInfo: 3,
-      verbose: 4,
-      debug: 5
+      error: 4,
+      verbose: 5,
+      debug: 6
     },
     colors: {
       serverError: 'red',
       daemonError: 'orange',
       serverInfo: 'white',
       daemonInfo: 'blue',
+      error: 'red',
       verbose: 'green',
       debug: 'yellow'
     }
@@ -78,8 +80,7 @@ const Logger = (filename, inputPath) => {
         format.timestamp(),
         myFormat
       ),
-      handleExceptions: true,
-      humanReadableUnhandledException: true
+      handleExceptions: true
     })
   ];
 

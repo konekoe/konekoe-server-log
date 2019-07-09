@@ -10,12 +10,12 @@ const logFileStamp = () => {
 const loggingLevels = {
     levels: {
       serverError: 0,
-      daemonError: 1,
-      serverInfo: 2,
-      daemonInfo: 3,
-      error: 4,
+      serverInfo: 1,
+      error: 2,
+      daemon_error: 3,
+      daemon_critical: 4,
       verbose: 5,
-      debug: 6
+      debug: 6,
     },
     colors: {
       serverError: 'red',

@@ -43,7 +43,8 @@ const createDirectory = (dir) => {
       currentPath = path.join(currentPath, someDir);
       mkdirSync(currentPath, 0777);
     } catch (err) {
-      if (err.code !== 'EEXIST') throw err
+      if (err.code !== 'EEXIST')
+        throw err;
     }
 
   }
@@ -100,8 +101,7 @@ const Logger = (filename, inputPath, rotationOptions) => {
     exitOnError: false
   });
 
-  console.log("Logger:","Init logger");
-  result.serverInfo("Init");
+  console.log("Logger:","Done");
   return result;
 };
 

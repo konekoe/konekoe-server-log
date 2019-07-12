@@ -1,11 +1,7 @@
 const { mkdirSync, copyFileSync, unlinkSync } = require('fs');
 const path = require('path');
 const { addColors, createLogger, format, transports } = require('winston');
-
-const logFileStamp = () => {
-  var date = new Date;
-  return date.getDate().toString()+"."+(date.getMonth() + 1).toString()+"."+date.getFullYear().toString();
-};
+require('winston-daily-rotate-file');
 
 const loggingLevels = {
     levels: {
@@ -32,8 +28,8 @@ const loggingLevels = {
     }
   };
 
-  const myFormat = format.printf(({ level, message, timestamp }) => {
-    return `${level} [${timestamp}] : ${message}`;
+  const myFormat = format.printf(({ level, message }) => {
+    return `${ level } [${ new Date() }] : ${ message }`;
   });
 
 
@@ -54,19 +50,7 @@ const createDirectory = (dir) => {
   console.log("Logger:",'Finished creating directory');
 };
 
-const replaceOldFile = (filePath) => {
-  console.log("Logger:","Replace existing file.");
-  try {
-    copyFileSync(filePath, filePath + '.old');
-    unlinkSync(filePath);
-    console.log("Logger","Renamed old file to",filePath + '.old')
-  }
-  catch (err) {
-    console.log("Logger:","An error occured:",err.message);
-  }
-};
-
-const Logger = (filename, inputPath) => {
+const Logger = (filename, inputPath, rotationOptions) => {
   console.log("Logger:","Instancing Logger");
 
   let loggingPath = inputPath || ( 'log' );
@@ -75,26 +59,34 @@ const Logger = (filename, inputPath) => {
 
   let name = path.join(loggingPath, filename);
 
-  replaceOldFile(name);
+  let myTransports = [ ];
 
-  let myTransports = [
-    new transports.File({
-      level: 'verbose',
-      filename: name,
-      format: format.combine(
-        format.timestamp(),
-        myFormat
-      ),
-      handleExceptions: true
-    })
-  ];
+  const fileTransportOptions = {
+    level: 'verbose',
+    filename: name,
+    format: format.combine(
+      format.timestamp(),
+      myFormat
+    )
+  };
+
+  if (rotationOptions) {
+    myTransports.push(
+      new (transports.DailyRotateFile)({
+        ...fileTransportOptions,
+        ...rotationOptions
+      })
+    );
+  }
+  else {
+    myTransports.push(new transports.File(fileTransportOptions));
+  }
 
   //TODO: Add hanlding for different builds.
   console.log("Logger:","Add debug transport");
   myTransports.push(new transports.Console({
     level: 'debug',
     format: format.combine(
-      format.timestamp(),
       format.colorize(),
       myFormat
     )

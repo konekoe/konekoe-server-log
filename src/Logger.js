@@ -71,17 +71,25 @@ const Logger = (filename, inputPath, rotationOptions) => {
     )
   };
 
+  let fileTransport = new transports.File(fileTransportOptions);
+
   if (rotationOptions) {
-    myTransports.push(
-      new (transports.DailyRotateFile)({
-        ...fileTransportOptions,
-        ...rotationOptions
-      })
-    );
+    fileTransport = new (transports.DailyRotateFile)({
+      ...fileTransportOptions,
+      ...rotationOptions
+    });
   }
-  else {
-    myTransports.push(new transports.File(fileTransportOptions));
-  }
+
+  fileTransport.on("logged", (args) => {
+    //args contains Symbol(message), which is the formatted message.
+    const msgSym = Symbol.for("message");
+
+    //NOTE: variables declated with var are hoisted to the top of the context i.e. this file.
+    //emit logged from the logger itself.
+    result.emit("logged", args[msgSym])
+  });
+
+  myTransports.push(fileTransport)
 
   //TODO: Add hanlding for different builds.
   console.log("Logger:","Add debug transport");

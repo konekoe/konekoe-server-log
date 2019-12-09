@@ -19,7 +19,7 @@ const loggingLevels = {
       serverError: 'red',
       serverInfo: 'white',
       daemon_info: 'whiteBG black',
-      daemon_warning: 'whiteBG orange',
+      daemon_warning: 'whiteBG yellow',
       daemon_error: 'whiteBG red',
       daemon_critical: 'bold redBG black',
       error: 'redBG black',
